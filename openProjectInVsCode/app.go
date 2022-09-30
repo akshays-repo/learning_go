@@ -3,7 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os/exec"
 )
+
+const ROOTWORKINPATH = "/home/brain/Desktop/Projects"
 
 // App struct
 type App struct {
@@ -21,7 +26,27 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) GetDirectorys() ([]string, error) {
+	files, err := ioutil.ReadDir(ROOTWORKINPATH)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	folders := []string{}
+	for _, f := range files {
+		if f.IsDir() {
+			folders = append(folders, f.Name())
+		}
+	}
+	return folders, err
+}
+func (a *App) OpenInVsCode(path string) {
+
+	finalPath := ROOTWORKINPATH + "/" + path
+	cmd := exec.Command("/usr/bin/code", finalPath)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 }
